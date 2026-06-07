@@ -237,11 +237,34 @@
             70% { box-shadow: 0 0 0 15px rgba(24, 119, 242, 0); }
             100% { box-shadow: 0 0 0 0 rgba(24, 119, 242, 0); }
         }
-    </style>
 
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+        /* CSS CHO POPUP BANNER CÀI ĐẶT APP (PWA) */
+        .pwa-install-banner {
+            position: fixed;
+            bottom: -120px;
+            left: 5%;
+            right: 5%;
+            background: linear-gradient(135deg, #2f3542, #1e222b);
+            border: 2px solid var(--primary-color);
+            border-radius: 16px;
+            padding: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            transition: bottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .pwa-install-banner.show { bottom: 25px; }
+        .pwa-app-icon { width: 45px; height: 45px; background: var(--primary-color); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 22px; color: #fff; }
+        .pwa-text { flex: 1; }
+        .pwa-text h4 { font-size: 14px; color: #fff; margin-bottom: 2px; font-weight: 600; }
+        .pwa-text p { font-size: 11px; color: #a4b0be; line-height: 1.4; }
+        .pwa-text p i { color: #54a0ff; font-size: 13px; margin: 0 2px; }
+        .pwa-text p strong { color: #fff; }
+        .pwa-close-btn { background: none; border: none; color: #ff7675; font-size: 18px; cursor: pointer; padding: 5px; }
+    </style>
 </head>
 <body>
 
@@ -334,8 +357,23 @@
         <span>Liên Hệ</span>
     </a>
 
-    <script>
-        // Cấu hình Firebase thực tế của bạn
+    <div id="pwa-banner" class="pwa-install-banner">
+        <div class="pwa-app-icon">
+            <i class="fa-solid fa-gamepad"></i>
+        </div>
+        <div class="pwa-text">
+            <h4>Cài đặt Ứng dụng PTG SHOP</h4>
+            <p id="pwa-instruction">Bấm vào nút chia sẻ trên trình duyệt và chọn <strong>"Thêm vào MH chính"</strong>.</p>
+        </div>
+        <button class="pwa-close-btn" onclick="closePwaBanner()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        // Cấu hình Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyBdjojt8mbSi_hJhbccv8r3WAXely8-u6o",
             authDomain: "randomacc-435ba.firebaseapp.com",
@@ -346,10 +384,9 @@
             appId: "1:29949891772:web:67bdb4e8b10f4c4ad92cb9"
         };
 
-        // Khởi tạo Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const database = firebase.database();
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
 
         let isRegisterMode = false;
         let currentUser = null;
@@ -357,61 +394,72 @@
         let spinStep = 1; 
         let isSystemMaintenance = false;
 
+        // Cho phép gọi các hàm global từ thẻ HTML
+        window.loginWithGoogle = loginWithGoogle;
+        window.handleAuth = handleAuth;
+        window.logout = logout;
+        window.toggleAuthMode = toggleAuthMode;
+        window.openModal = openModal;
+        window.closeAllModals = closeAllModals;
+        window.handleSpinClick = handleSpinClick;
+        window.closePwaBanner = closePwaBanner;
+
         window.onload = function() {
             checkSystemStatus();
+            checkPwaStatus();
         };
 
-        // HÀM ĐĂNG NHẬP BẰNG GOOGLE POPUP (ĐÃ ĐƯỢC CẬP NHẬT)
+        // ĐĂNG NHẬP GOOGLE POPUP
         function loginWithGoogle() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            
-            auth.signInWithPopup(provider).then(async (result) => {
-                if (result.user) {
-                    let googleEmail = result.user.email;
-                    // Xóa các ký tự đặc biệt bị cấm trong Key Realtime Database
-                    let cleanUserKey = googleEmail.replace(/[.#$\[\]]/g, "_");
+            const provider = new GoogleAuthProvider();
+            provider.setCustomParameters({ prompt: 'select_account' });
 
-                    // Tra cứu xem tài khoản đã từng đăng nhập trước đây chưa
-                    const snapshot = await database.ref(`users/${cleanUserKey}`).once('value');
-                    const userData = snapshot.val();
+            signInWithPopup(auth, provider)
+                .then(async (result) => {
+                    if (result.user) {
+                        let googleEmail = result.user.email;
+                        let cleanUserKey = googleEmail.replace(/[.#$\[\]]/g, "_");
 
-                    if (userData) {
-                        // Nếu tài khoản đã tồn tại và bị khóa
-                        if (userData.status === "banned") {
-                            alert("Tài khoản Google này của bạn đã bị KHÓA do vi phạm quy định điều khoản hệ thống!");
-                            auth.signOut();
-                            return;
+                        const userRef = ref(database, `users/${cleanUserKey}`);
+                        const snapshot = await get(userRef);
+                        const userData = snapshot.val();
+
+                        if (userData) {
+                            if (userData.status === "banned") {
+                                alert("Tài khoản Google này của bạn đã bị KHÓA!");
+                                signOut(auth);
+                                return;
+                            }
+                            currentUser = cleanUserKey;
+                            currentSBD = userData.sbd ? userData.sbd : "Chưa có SBD";
+                            loginSuccess(userData.balance, currentSBD);
+                        } else {
+                            let newSBD = generateSBD();
+                            let defaultProfile = {
+                                password: "LoginByGoogleAccount",
+                                balance: 0,
+                                sbd: newSBD,
+                                status: "active"
+                            };
+                            await set(userRef, defaultProfile);
+                            currentUser = cleanUserKey;
+                            currentSBD = newSBD;
+                            alert(`Đăng nhập Google thành công! Số báo danh mới của bạn là: ${newSBD}`);
+                            loginSuccess(0, newSBD);
                         }
-                        currentUser = cleanUserKey;
-                        currentSBD = userData.sbd ? userData.sbd : "Chưa có SBD";
-                        loginSuccess(userData.balance, currentSBD);
-                    } else {
-                        // Tạo tài khoản mới hoàn toàn nếu đăng nhập Google lần đầu
-                        let newSBD = generateSBD();
-                        let defaultProfile = {
-                            password: "LoginByGoogleAccount",
-                            balance: 0,
-                            sbd: newSBD,
-                            status: "active"
-                        };
-                        await database.ref(`users/${cleanUserKey}`).set(defaultProfile);
-                        currentUser = cleanUserKey;
-                        currentSBD = newSBD;
-                        alert(`Đăng nhập Google thành công! Số báo danh mới của bạn là: ${newSBD}`);
-                        loginSuccess(0, newSBD);
+                        checkSystemStatus();
                     }
-                    checkSystemStatus();
-                }
-            }).catch((error) => {
-                console.error("Lỗi xác thực Google Popup:", error);
-                alert("Không thể đăng nhập Google. Vui lòng kiểm tra lại cấu hình 'Authorized Domains' trên Firebase hoặc chạy trang web qua một Server (http/https).");
-            });
+                })
+                .catch((error) => {
+                    console.error("Lỗi Đăng nhập Google:", error);
+                    alert("Không thể kết nối cổng đăng nhập Google. Hãy chắc chắn bạn đã thêm tên miền Netlify vào mục 'Authorized Domains' của Firebase!");
+                });
         }
 
-        // Lấy thông tin cấu hình bảo trì hệ thống
         async function checkSystemStatus() {
             try {
-                const snapshot = await database.ref('system_config').once('value');
+                const configRef = ref(database, 'system_config');
+                const snapshot = await get(configRef);
                 const config = snapshot.val();
                 const btnSpin = document.getElementById('btn-spin-trigger');
 
@@ -468,24 +516,24 @@
             let cleanUserKey = user.replace(/[.#$\[\]]/g, "_");
 
             if(isRegisterMode) {
-                const snapshot = await database.ref(`users/${cleanUserKey}`).once('value');
+                const userRef = ref(database, `users/${cleanUserKey}`);
+                const snapshot = await get(userRef);
                 if(snapshot.exists()) {
                     alert("Tài khoản này đã tồn tại trên hệ thống!");
                 } else {
                     let newSBD = generateSBD();
-                    await database.ref(`users/${cleanUserKey}`).set({
-                        password: pass, balance: 0, sbd: newSBD, status: "active"
-                    });
+                    await set(userRef, { password: pass, balance: 0, sbd: newSBD, status: "active" });
                     alert(`Đăng ký thành công! Số báo danh của bạn là: ${newSBD}`);
                     toggleAuthMode();
                 }
             } else {
-                const snapshot = await database.ref(`users/${cleanUserKey}`).once('value');
+                const userRef = ref(database, `users/${cleanUserKey}`);
+                const snapshot = await get(userRef);
                 const data = snapshot.val();
 
                 if(data && data.password === pass) {
                     if (data.status === "banned") {
-                        alert("Tài khoản của bạn đã bị KHÓA do vi phạm quy định điều khoản hoặc có hành vi spam can thiệp hệ thống! Vui lòng liên hệ Admin.");
+                        alert("Tài khoản của bạn đã bị KHÓA!");
                         return;
                     }
                     currentUser = cleanUserKey;
@@ -509,7 +557,7 @@
         }
 
         function logout() {
-            auth.signOut().then(() => {
+            signOut(auth).then(() => {
                 currentUser = null;
                 location.reload();
             });
@@ -529,20 +577,14 @@
                 alert("Hệ thống hòm Random hiện tại đang tạm đóng để bảo trì nâng cấp, vui lòng quay lại sau!");
                 return;
             }
-
             const btnSpin = document.getElementById('btn-spin-trigger');
-            
             if (spinStep === 1) {
                 spinStep = 2;
                 btnSpin.className = "btn btn-warning";
                 btnSpin.innerHTML = `<i class="fa-solid fa-circle-check"></i> XÁC NHẬN RANDOM`;
             } else if (spinStep === 2) {
                 let checkConfirm = confirm("Bạn chắc chắn chứ? Khi bạn random là bạn sẽ bị mất 20k ở trong số dư tài khoản của bạn.");
-                if (checkConfirm) {
-                    executeSpinLogic();
-                } else {
-                    resetSpinButton();
-                }
+                if (checkConfirm) { executeSpinLogic(); } else { resetSpinButton(); }
             }
         }
 
@@ -553,12 +595,12 @@
 
         async function executeSpinLogic() {
             resetSpinButton();
-            
-            const snapshot = await database.ref(`users/${currentUser}`).once('value');
+            const userRef = ref(database, `users/${currentUser}`);
+            const snapshot = await get(userRef);
             const userData = snapshot.val();
 
             if (userData.status === "banned") {
-                alert("Thao tác thất bại! Tài khoản của bạn vừa bị khóa do vi phạm quy định shop!");
+                alert("Thao tác thất bại! Tài khoản của bạn vừa bị khóa!");
                 logout();
                 return;
             }
@@ -570,21 +612,21 @@
             }
 
             let newBalance = currentBalance - 20000;
-            await database.ref(`users/${currentUser}/balance`).set(newBalance);
+            await set(ref(database, `users/${currentUser}/balance`), newBalance);
             document.getElementById('user-balance').innerText = newBalance.toLocaleString('vi-VN');
 
             const resultBox = document.getElementById('result-box');
             resultBox.style.display = 'block';
             resultBox.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Hệ thống đang sàng lọc dữ liệu acc...`;
 
-            const khoSnapshot = await database.ref('kho_acc').once('value');
+            const khoSnapshot = await get(ref(database, 'kho_acc'));
             const khoAcc = khoSnapshot.val();
 
             setTimeout(async () => {
                 if (!khoAcc) {
-                    resultBox.innerHTML = `<span style="color: #ea2027; font-weight: bold;"><i class="fa-solid fa-circle-exclamation"></i> Hòm quà hiện đã hết nick! Vui lòng liên hệ Admin để nạp thêm acc.</span>`;
+                    resultBox.innerHTML = `<span style="color: #ea2027; font-weight: bold;"><i class="fa-solid fa-circle-exclamation"></i> Hòm quà hiện đã hết nick! Vui lòng liên hệ Admin.</span>`;
                     let refundBalance = newBalance + 20000;
-                    await database.ref(`users/${currentUser}/balance`).set(refundBalance);
+                    await set(ref(database, `users/${currentUser}/balance`), refundBalance);
                     document.getElementById('user-balance').innerText = refundBalance.toLocaleString('vi-VN');
                     return;
                 }
@@ -593,7 +635,7 @@
                 const randomKey = keys[Math.floor(Math.random() * keys.length)];
                 const accTrung = khoAcc[randomKey];
 
-                await database.ref(`kho_acc/${randomKey}`).remove();
+                await set(ref(database, `kho_acc/${randomKey}`), null);
 
                 resultBox.innerHTML = `
                     <span style="color: var(--secondary-color); font-weight: bold;"><i class="fa-solid fa-circle-check"></i> CHÚC MỪNG BẠN ĐÃ TRÚNG ACC!</span><br>
@@ -603,6 +645,59 @@
                     <strong><i class="fa-solid fa-key"></i> Mật khẩu:</strong> <span style="color: #ffd32a; font-family: monospace;">${accTrung.password}</span>
                 `;
             }, 1500);
+        }
+
+        // LOGIC TỰ ĐỘNG KHỞI CHẠY KIỂM TRA PWA APP
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            if (!localStorage.getItem('pwa_banner_closed')) {
+                showPwaBanner('android');
+            }
+        });
+
+        function checkPwaStatus() {
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+            if (isStandalone) return; 
+
+            const userAgent = window.navigator.userAgent.toLowerCase();
+            const isIos = /iphone|ipad|ipod/.test(userAgent);
+            const isSafari = /safari/.test(userAgent) && !/crios/.test(userAgent) && !/fxios/.test(userAgent);
+
+            if (isIos && isSafari) {
+                if (!localStorage.getItem('pwa_banner_closed')) {
+                    showPwaBanner('ios');
+                }
+            }
+        }
+
+        function showPwaBanner(platform) {
+            const banner = document.getElementById('pwa-banner');
+            const instruction = document.getElementById('pwa-instruction');
+
+            if (platform === 'ios') {
+                instruction.innerHTML = `Bấm vào biểu tượng chia sẻ <i class="fa-solid fa-share-from-square"></i> bên dưới, cuộn xuống và chọn <strong>"Thêm vào MH chính"</strong>.`;
+            } else if (platform === 'android') {
+                instruction.innerHTML = `Bấm vào đây để tải và tạo phím tắt ứng dụng <strong>PTG SHOP</strong> ra màn hình điện thoại!`;
+                banner.style.cursor = 'pointer';
+                banner.onclick = function(e) {
+                    if(e.target.closest('.pwa-close-btn')) return;
+                    if (deferredPrompt) {
+                        deferredPrompt.prompt();
+                        deferredPrompt.userChoice.then((choiceResult) => {
+                            if (choiceResult.outcome === 'accepted') { closePwaBanner(); }
+                            deferredPrompt = null;
+                        });
+                    }
+                };
+            }
+            setTimeout(() => { banner.classList.add('show'); }, 2000);
+        }
+
+        function closePwaBanner() {
+            document.getElementById('pwa-banner').classList.remove('show');
+            localStorage.setItem('pwa_banner_closed', 'true');
         }
     </script>
 </body>
