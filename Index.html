@@ -335,7 +335,7 @@
     </a>
 
     <script>
-        // ĐÃ ĐIỀN CHÍNH XÁC CONFIG CỦA DỰ ÁN CỦA BẠN
+        // Cấu hình Firebase thực tế của bạn
         const firebaseConfig = {
             apiKey: "AIzaSyBdjojt8mbSi_hJhbccv8r3WAXely8-u6o",
             authDomain: "randomacc-435ba.firebaseapp.com",
@@ -358,22 +358,25 @@
         let isSystemMaintenance = false;
 
         window.onload = function() {
-            checkRedirectResult();
             checkSystemStatus();
         };
 
-        // Hàm kiểm tra và hứng kết quả sau khi đăng nhập bằng Google thành công từ link chuyển hướng
-        function checkRedirectResult() {
-            auth.getRedirectResult().then(async (result) => {
+        // HÀM ĐĂNG NHẬP BẰNG GOOGLE POPUP (ĐÃ ĐƯỢC CẬP NHẬT)
+        function loginWithGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            
+            auth.signInWithPopup(provider).then(async (result) => {
                 if (result.user) {
                     let googleEmail = result.user.email;
+                    // Xóa các ký tự đặc biệt bị cấm trong Key Realtime Database
                     let cleanUserKey = googleEmail.replace(/[.#$\[\]]/g, "_");
 
-                    // Tra cứu tài khoản trên hệ thống dữ liệu Realtime Database
+                    // Tra cứu xem tài khoản đã từng đăng nhập trước đây chưa
                     const snapshot = await database.ref(`users/${cleanUserKey}`).once('value');
                     const userData = snapshot.val();
 
                     if (userData) {
+                        // Nếu tài khoản đã tồn tại và bị khóa
                         if (userData.status === "banned") {
                             alert("Tài khoản Google này của bạn đã bị KHÓA do vi phạm quy định điều khoản hệ thống!");
                             auth.signOut();
@@ -383,7 +386,7 @@
                         currentSBD = userData.sbd ? userData.sbd : "Chưa có SBD";
                         loginSuccess(userData.balance, currentSBD);
                     } else {
-                        // Khởi tạo thông tin mới cho người dùng đăng nhập bằng Google lần đầu
+                        // Tạo tài khoản mới hoàn toàn nếu đăng nhập Google lần đầu
                         let newSBD = generateSBD();
                         let defaultProfile = {
                             password: "LoginByGoogleAccount",
@@ -400,17 +403,12 @@
                     checkSystemStatus();
                 }
             }).catch((error) => {
-                console.error("Lỗi xác thực Google:", error);
+                console.error("Lỗi xác thực Google Popup:", error);
+                alert("Không thể đăng nhập Google. Vui lòng kiểm tra lại cấu hình 'Authorized Domains' trên Firebase hoặc chạy trang web qua một Server (http/https).");
             });
         }
 
-        // Gọi API Google login theo kiểu Redirect (Chuyển hướng) để chạy mượt mà trên Safari/Chrome Mobile
-        function loginWithGoogle() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithRedirect(provider);
-        }
-
-        // Lấy thông tin trạng thái hoạt động / bảo trì của cửa hàng
+        // Lấy thông tin cấu hình bảo trì hệ thống
         async function checkSystemStatus() {
             try {
                 const snapshot = await database.ref('system_config').once('value');
@@ -458,7 +456,6 @@
             return "SPTG" + num;
         }
 
-        // Hàm Đăng ký / Đăng nhập truyền thống thủ công bằng form nhập liệu
         async function handleAuth() {
             const user = document.getElementById('auth-user').value.trim();
             const pass = document.getElementById('auth-pass').value.trim();
