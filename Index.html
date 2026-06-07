@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>SHOP ACC PLAY TOGETHER - UY TÍN SỐ 1</title>
     
-    <link rel="manifest" href='data:application/json,{"name":"PTG SHOP","short_name":"PTG","start_url":"/","display":"standalone","background_color":"#1e272e","icons":[{"src":"https://i.postimg.cc/K8NZ1hwV/IMG-2480.jpg","sizes":"512x512","type":"image/png"}]}'>
-    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="PTG SHOP">
@@ -408,7 +406,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-        // NHÚNG MESSAGING VÀO ĐÂY
         import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js";
 
         const firebaseConfig = {
@@ -450,14 +447,18 @@
         window.closeAllModals = closeAllModals;
         window.handleSpinClick = handleSpinClick;
 
+        // BƯỚC THỰC THI CHÍNH KHI KHỞI ĐỘNG TRANG WEB
         window.addEventListener('DOMContentLoaded', () => {
             detectAndVerifyPWA();
         });
 
+        // 🧠 HÀM THÔNG MINH: NHẬN DIỆN THIẾT BỊ VÀ ÉP BUỘC PHẢI CHẠY BẰNG MÀN HÌNH CHÍNH (PWA APP)
         function detectAndVerifyPWA() {
+            // Kiểm tra xem trang web đang chạy độc lập (đã thêm ra màn hình chính) hay chưa
             const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 
             if (isStandalone) {
+                // NẾU LÀ APP CHUẨN NGOÀI MÀN HÌNH CHÍNH: Cho chạy hiệu ứng Splash Screen giống video
                 document.getElementById('main-app-content').style.display = 'block';
                 checkSystemStatus();
 
@@ -465,9 +466,10 @@
                     const splash = document.getElementById('splash-screen');
                     splash.style.opacity = '0';
                     setTimeout(() => { splash.style.display = 'none'; }, 500);
-                }, 2500);
+                }, 2500); // Màn hình chờ nhún nhảy trong 2.5 giây rồi biến mất
 
             } else {
+                // NẾU ĐANG CHẠY TRÊN TRÌNH DUYỆT THƯỜNG: Khóa Shop lại và kiểm tra hệ điều hành để hiện bảng hướng dẫn
                 document.getElementById('splash-screen').style.display = 'none';
                 document.getElementById('pwa-blocker').style.display = 'block';
 
@@ -475,13 +477,16 @@
                 const isIos = /iphone|ipad|ipod/.test(userAgent);
 
                 if (isIos) {
+                    // Nếu là iPhone -> Hiện bảng chỉ dẫn của Safari
                     document.getElementById('guide-ios').style.display = 'block';
                 } else {
+                    // Mặc định hoặc Android -> Hiện bảng chỉ dẫn của Android
                     document.getElementById('guide-android').style.display = 'block';
                 }
             }
         }
 
+        // Bắt sự kiện tải App của riêng hệ điều hành Android
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
@@ -499,6 +504,7 @@
             }
         });
 
+        // 🛡️ CHỐNG VĂNG KHỎI CHẾ ĐỘ FULLSCREEN APP TRÊN IOS
         if (("standalone" in window.navigator) && window.navigator.standalone) {
             var noddy, remotes = false;
             document.addEventListener('click', function(event) {
@@ -511,6 +517,7 @@
             }, false);
         }
 
+        // ==================== CÁC LOGIC XỬ LÝ DỮ LIỆU ĐÃ CÓ CỦA SHOP ====================
         function loginWithGoogle() {
             const provider = new GoogleAuthProvider();
             provider.setCustomParameters({ prompt: 'select_account' });
