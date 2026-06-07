@@ -2,8 +2,14 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>SHOP ACC PLAY TOGETHER - UY TÍN SỐ 1</title>
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="PTG SHOP">
+
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/686/686589.png">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -238,7 +244,7 @@
             100% { box-shadow: 0 0 0 0 rgba(24, 119, 242, 0); }
         }
 
-        /* CSS CHO POPUP BANNER CÀI ĐẶT APP (PWA) */
+        /* BANNER HƯỚNG DẪN CÀI ĐẶT APP (PWA) */
         .pwa-install-banner {
             position: fixed;
             bottom: -120px;
@@ -283,7 +289,7 @@
         <div class="alert-announcement">
             <i class="fa-solid fa-triangle-exclamation"></i>
             <marquee behavior="scroll" direction="left" scrollamount="6">
-                CHÚ Ý NÊU CAO Ý THỨC: Hệ thống giám sát nghiêm ngặt 24/7! Nếu thành viên cố tình spam, sử dụng các phần mềm thứ ba hoặc công cụ can thiệp trái phép vào vòng quay, hệ thống sẽ tự động KHÓA TÀI KHOẢN VĨNH VIỄN và tịch thu số dư mà không báo trước!
+                CHÚ Ý NÊU CAO Ý THỨC: Hệ thống giám sát nghiêm ngặt 24/7! Nếu thành viên cố tinh spam, sử dụng các phần mềm thứ ba hoặc công cụ can thiệp trái phép vào vòng quay, hệ thống sẽ tự động KHÓA TÀI KHOẢN VĨNH VIỄN và tịch thu số dư mà không báo trước!
             </marquee>
         </div>
 
@@ -394,7 +400,6 @@
         let spinStep = 1; 
         let isSystemMaintenance = false;
 
-        // Cho phép gọi các hàm global từ thẻ HTML
         window.loginWithGoogle = loginWithGoogle;
         window.handleAuth = handleAuth;
         window.logout = logout;
@@ -408,6 +413,21 @@
             checkSystemStatus();
             checkPwaStatus();
         };
+
+        // ÉP WEB APP CHẠY TRONG CHẾ ĐỘ TOÀN MÀN HÌNH KHÔNG VĂNG RA SAFARI KHÁC
+        if (("standalone" in window.navigator) && window.navigator.standalone) {
+            var noddy, remotes = false;
+            document.addEventListener('click', function(event) {
+                noddy = event.target;
+                while (noddy.nodeName !== "A" && noddy.nodeName !== "HTML") {
+                    noddy = noddy.parentNode;
+                }
+                if ('href' in noddy && noddy.href.indexOf('http') !== -1 && (noddy.href.indexOf(document.location.host) !== -1 || remotes)) {
+                    event.preventDefault();
+                    document.location.href = noddy.href;
+                }
+            }, false);
+        }
 
         // ĐĂNG NHẬP GOOGLE POPUP
         function loginWithGoogle() {
@@ -638,7 +658,7 @@
                 await set(ref(database, `kho_acc/${randomKey}`), null);
 
                 resultBox.innerHTML = `
-                    <span style="color: var(--secondary-color); font-weight: bold;"><i class="fa-solid fa-circle-check"></i> CHÚC MỪNG BẠN ĐÃ TRÚNG ACC!</span><br>
+                    <span style="color: var(--secondary-color); font-weight: bold;"><i class="fa-solid fa-circle-check"></i> CHÚC MỪNG BẠTab ĐÃ TRÚNG ACC!</span><br>
                     <hr style="margin: 5px 0; opacity: 0.2;">
                     <strong><i class="fa-solid fa-right-to-bracket"></i> Hình thức log:</strong> <span style="color: #0abde3; font-weight: bold; text-transform: uppercase;">${accTrung.logtype ? accTrung.logtype : 'Chơi ngay'}</span><br>
                     <strong><i class="fa-solid fa-user"></i> Tài khoản:</strong> <span style="color: #ffd32a; font-family: monospace;">${accTrung.username}</span><br>
@@ -647,7 +667,7 @@
             }, 1500);
         }
 
-        // LOGIC TỰ ĐỘNG KHỞI CHẠY KIỂM TRA PWA APP
+        // LOGIC KHỞI TẠO BẢNG HƯỚNG DẪN PWA APP
         let deferredPrompt;
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
