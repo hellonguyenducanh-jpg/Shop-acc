@@ -21,15 +21,14 @@
             --secondary-color: #2ed573;
             --dark-color: #1e272e;
             --light-bg: #f1f2f6;
-            --ios-blue: #007AFF;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-        body { background: #11141a; color: #fff; min-height: 100vh; overflow-x: hidden; }
+        body { background: var(--dark-color); color: #fff; min-height: 100vh; overflow-x: hidden; }
 
-        /* ==================== MÀN HÌNH HIỂN THỊ NGAY KHI MỞ TRANG ==================== */
+        /* ==================== 1. GIAO DIỆN KHÓA TRÌNH DUYỆT (CHƯA CÀI APP) ==================== */
         #pwa-blocker {
-            display: block;
+            display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: #11141a;
@@ -38,33 +37,16 @@
             text-align: center;
             overflow-y: auto;
         }
-        .blocker-logo {
-            width: 100px;
-            height: 100px;
-            border-radius: 20px;
-            margin: 20px auto;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
-        }
-        .blocker-title { 
-            font-size: 22px; 
-            font-weight: 700; 
-            color: #fff; 
-            margin-top: 10px;
-            line-height: 1.4;
-        }
-        .blocker-desc { 
-            font-size: 15px; 
-            color: #a4b0be; 
-            margin: 8px 0 35px 0; 
-        }
+        .blocker-title { font-size: 20px; font-weight: 700; color: #fff; margin-top: 15px; }
+        .blocker-desc { font-size: 14px; color: #a4b0be; margin-top: 5px; margin-bottom: 30px; }
         
-        /* Khung hướng dẫn giống ảnh */
+        /* Khung hướng dẫn bọc ngoài */
         .guide-box {
             background: #1e222b;
             border: 1px solid rgba(255,255,255,0.05);
             border-radius: 16px;
-            padding: 25px 20px;
-            max-width: 500px;
+            padding: 20px;
+            max-width: 450px;
             margin: 0 auto;
             text-align: left;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
@@ -72,86 +54,55 @@
         .guide-header {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 25px;
+            gap: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
         }
-        .guide-header i { 
-            font-size: 26px; 
-            color: var(--ios-blue); 
-        }
-        .guide-header h3 { 
-            font-size: 18px; 
-            font-weight: 600;
-            color: #fff;
-        }
+        .guide-header i { font-size: 24px; color: #54a0ff; }
+        .guide-header h3 { font-size: 16px; font-weight: 600; }
         
-        /* Các bước hướng dẫn chuẩn như ảnh */
-        .step-item { 
-            display: flex; 
-            gap: 15px; 
-            margin-bottom: 28px; 
-            position: relative; 
-            align-items: flex-start;
+        /* Các bước hướng dẫn giống ảnh mẫu */
+        .step-item { display: flex; gap: 15px; margin-bottom: 25px; position: relative; }
+        .step-item:not(:last-child)::after {
+            content: ''; position: absolute; left: 14px; top: 30px; bottom: -20px;
+            width: 2px; background: rgba(255,255,255,0.1);
         }
         .step-num {
-            width: 32px; 
-            height: 32px; 
-            background: var(--ios-blue); 
-            color: #fff;
-            border-radius: 50%; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            font-weight: 600; 
-            font-size: 16px; 
-            flex-shrink: 0;
-            margin-top: 2px;
+            width: 30px; height: 30px; background: #54a0ff; color: #fff;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: 600; font-size: 14px; flex-shrink: 0;
         }
-        .step-content { flex: 1; }
-        .step-content p { 
-            font-size: 16px; 
-            color: #f1f2f6; 
-            line-height: 1.5;
-        }
-        .step-content p strong { 
-            color: var(--ios-blue); 
-            font-weight: 600;
-        }
-        .step-box-demo {
+        .step-content { flex: 1; padding-top: 3px; }
+        .step-content p { font-size: 14px; color: #f1f2f6; line-height: 1.5; }
+        .step-content p strong { color: #54a0ff; }
+        .step-img-mock {
             background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 1px dashed rgba(255,255,255,0.1);
             border-radius: 8px;
             padding: 12px;
             margin-top: 10px;
             text-align: center;
-            font-size: 15px;
-            color: #ccc;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            width: 100%;
-            justify-content: center;
+            font-size: 13px;
+            color: #a4b0be;
         }
-        .step-box-demo i {
-            color: #fff;
-            font-size: 18px;
-        }
+        .step-img-mock i { font-size: 18px; color: #ff4757; }
 
         /* Nút kích hoạt ảo cho Android */
         .btn-android-install {
             background: #2ed573; color: #fff; border: none; padding: 12px;
-            border-radius: 8px; width: 100%; font-weight: 600; font-size: 15px;
+            border-radius: 8px; width: 100%; font-weight: 600; font-size: 14px;
             cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
             margin-top: 10px; box-shadow: 0 4px 12px rgba(46, 213, 115, 0.3);
         }
 
-        /* ==================== 2. HIỆU ỨNG MÀN HÌNH CHỜ (ẨN BAN ĐẦU) ==================== */
+        /* ==================== 2. HIỆU ỨNG MÀN HÌNH CHỜ (SPLASH SCREEN APP) ==================== */
         #splash-screen {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: #11141a;
             z-index: 99999;
-            display: none;
+            display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
@@ -176,7 +127,7 @@
             100% { transform: scale(1.05); filter: drop-shadow(0 15px 20px rgba(255,71,87,0.3)); }
         }
 
-        /* ==================== GIAO DIỆN CHÍNH CỦA WEB SHOP (ẨN BAN ĐẦU) ==================== */
+        /* ==================== GIAO DIỆN CHÍNH CỦA WEB SHOP ==================== */
         #main-app-content { display: none; padding-bottom: 60px; }
 
         /* Navigation Bar */
@@ -248,16 +199,15 @@
         }
         .banner h1 { font-size: 32px; font-weight: 700; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
 
-        /* Khối Vòng Quay & Mục Mới */
+        /* Khối Vòng Quay */
         .shop-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; justify-content: center; }
-        .card-random, .card-fixed {
+        .card-random {
             background: rgba(255,255,255,0.05); border-radius: 16px; overflow: hidden;
             border: 1px solid rgba(255,255,255,0.1); transition: transform 0.3s; position: relative;
         }
-        .card-random:hover, .card-fixed:hover { transform: translateY(-5px); border-color: var(--primary-color); }
+        .card-random:hover { transform: translateY(-5px); border-color: var(--primary-color); }
         .card-tag { position: absolute; top: 15px; left: 15px; background: var(--primary-color); padding: 4px 12px; border-radius: 50px; font-size: 12px; font-weight: 600; }
-        .card-img { width: 100%; height: 200px; background: #333; display: flex; align-items: center; justify-content: center; }
-        .card-img img { width: 100%; height: 100%; object-fit: cover; }
+        .card-img { width: 100%; height: 200px; background: #333 linear-gradient(45deg, #111, #333); display: flex; align-items: center; justify-content: center; font-size: 40px; color: #555; }
         .card-body { padding: 20px; text-align: center; }
         .card-title { font-size: 20px; font-weight: 600; margin-bottom: 10px; }
         .card-price { font-size: 24px; color: #ffd32a; font-weight: 700; margin-bottom: 15px; }
@@ -288,7 +238,7 @@
         .qr-image { width: 100%; max-width: 220px; border-radius: 12px; margin: 10px auto; border: 4px solid #fff; }
         .note-highlight { background: rgba(234, 32, 39, 0.15); border: 1px solid #ea2027; padding: 10px; border-radius: 8px; font-size: 12px; color: #ff7675; margin-top: 10px; text-align: left; line-height: 1.4; }
 
-        #result-box, #fixed-result { background: rgba(46, 213, 115, 0.1); border: 1px dashed var(--secondary-color); padding: 15px; border-radius: 8px; margin-top: 15px; display: none; text-align: left; }
+        #result-box { background: rgba(46, 213, 115, 0.1); border: 1px dashed var(--secondary-color); padding: 15px; border-radius: 8px; margin-top: 15px; display: none; text-align: left; }
 
         .floating-contact {
             position: fixed; bottom: 25px; right: 25px; width: 65px; height: 65px; background: #1877f2; color: white;
@@ -305,14 +255,12 @@
 </head>
 <body>
 
-    <!-- MÀN HÌNH HIỂN THỊ NGAY KHI MỞ TRANG - GIỐNG HÌNH ẢNH -->
     <div id="pwa-blocker">
-        <img src="https://i.postimg.cc/K8NZ1hwV/IMG-2480.jpg" class="blocker-logo" alt="Logo Play Together">
+        <img src="https://i.postimg.cc/K8NZ1hwV/IMG-2480.jpg" style="width: 80px; height: 80px; border-radius: 18px; margin-top: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.4);" alt="Logo">
         <div class="blocker-title">Cài đặt Ứng dụng để sử dụng</div>
         <div class="blocker-desc">Vui lòng làm theo hướng dẫn dưới đây để tiếp tục truy cập Shop</div>
 
-        <!-- Hướng dẫn iOS CHÍNH - giống ảnh của bạn -->
-        <div id="guide-ios" class="guide-box" style="display: block;">
+        <div id="guide-ios" class="guide-box" style="display: none;">
             <div class="guide-header">
                 <i class="fa-brands fa-apple"></i>
                 <h3>Cài đặt trên iOS (Safari Browser)</h3>
@@ -320,14 +268,14 @@
             <div class="step-item">
                 <div class="step-num">1</div>
                 <div class="step-content">
-                    <p>Nhấn vào nút <strong>Chia sẻ (Share)</strong> <i class="fa-solid fa-share-from-square"></i> trên thanh công cụ phía dưới cùng trình duyệt.</p>
+                    <p>Nhấn vào nút <strong>Chia sẻ (Share)</strong> <i class="fa-solid fa-share-from-square" style="color: #54a0ff;"></i> trên thanh công cụ phía dưới cùng trình duyệt.</p>
                 </div>
             </div>
             <div class="step-item">
                 <div class="step-num">2</div>
                 <div class="step-content">
                     <p>Cuộn menu xuống phía dưới và chọn mục <strong>Thêm vào MH chính</strong>.</p>
-                    <div class="step-box-demo"><i class="fa-solid fa-plus"></i> Thêm vào MH chính</div>
+                    <div class="step-img-mock"><i class="fa-solid fa-square-plus" style="color: #fff; margin-right: 5px;"></i> Thêm vào MH chính</div>
                 </div>
             </div>
             <div class="step-item">
@@ -338,8 +286,7 @@
             </div>
         </div>
 
-        <!-- Hướng dẫn Android -->
-        <div id="guide-android" class="guide-box" style="display: none; margin-top:20px;">
+        <div id="guide-android" class="guide-box" style="display: none;">
             <div class="guide-header">
                 <i class="fa-brands fa-android" style="color: #2ed573;"></i>
                 <h3>Cài đặt trên Android (Chrome)</h3>
@@ -416,11 +363,10 @@
                 </div>
 
                 <div class="shop-grid">
-                    <!-- Mục cũ Random Acc -->
                     <div class="card-random">
                         <span class="card-tag">Hot Sale</span>
                         <div class="card-img">
-                            <i class="fa-solid fa-gift" style="color: var(--primary-color); font-size: 60px;"></i>
+                            <i class="fa-solid fa-gift" style="color: var(--primary-color);"></i>
                         </div>
                         <div class="card-body">
                             <div class="card-title">Hòm Random Acc VIP Cực Đỉnh</div>
@@ -431,29 +377,6 @@
                             <div id="result-box"></div>
                         </div>
                     </div>
-
-                    <!-- MỤC MỚI: PASS ACC PLAY TOGETHER -->
-                    <div class="card-fixed">
-                        <span class="card-tag">Bán Chạy</span>
-                        <div class="card-img">
-                            <img src="https://i.postimg.cc/PfQtcLkG/IMG-5024.jpg" alt="Ảnh Acc Play Together">
-                        </div>
-                        <div class="card-body">
-                            <div class="card-title">PASS ACC PLAY TOGETHER</div>
-                            <div class="card-price">20,000đ</div>
-                            <div>
-                                <button class="btn btn-primary" id="btn-buy-fixed" onclick="buyFixedAcc()"><i class="fa-solid fa-cart-shopping"></i> MUA NGAY</button>
-                            </div>
-                            <div id="fixed-result">
-                                <span style="color: var(--secondary-color); font-weight: bold;"><i class="fa-solid fa-circle-check"></i> MUA THÀNH CÔNG!</span><br>
-                                <hr style="margin: 5px 0; opacity: 0.2;">
-                                <strong><i class="fa-solid fa-right-to-bracket"></i> Log:</strong> <span style="color: #0abde3; font-weight: bold;">Zing</span><br>
-                                <strong><i class="fa-solid fa-user"></i> Tài khoản:</strong> <span style="color: #ffd32a; font-family: monospace;">uqb.7940</span><br>
-                                <strong><i class="fa-solid fa-key"></i> Mật khẩu:</strong> <span style="color: #ffd32a; font-family: monospace;">DN50bhrwb.</span>
-                            </div>
-                        </div>
-                    </div>
-
                 </div>
             </div>
         </div>
@@ -512,21 +435,19 @@
         window.openModal = openModal;
         window.closeAllModals = closeAllModals;
         window.handleSpinClick = handleSpinClick;
-        window.buyFixedAcc = buyFixedAcc;
 
         // BƯỚC THỰC THI CHÍNH KHI KHỞI ĐỘNG TRANG WEB
         window.addEventListener('DOMContentLoaded', () => {
             detectAndVerifyPWA();
         });
 
-        // 🧠 HÀM THÔNG MINH: NHẬN DIỆN THIẾT BỊ - MỞ RA LÀ HIỆN NGAY HƯỚNG DẪN
+        // 🧠 HÀM THÔNG MINH: NHẬN DIỆN THIẾT BỊ VÀ ÉP BUỘC PHẢI CHẠY BẰNG MÀN HÌNH CHÍNH (PWA APP)
         function detectAndVerifyPWA() {
             // Kiểm tra xem trang web đang chạy độc lập (đã thêm ra màn hình chính) hay chưa
             const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 
             if (isStandalone) {
-                // NẾU ĐÃ CÀI APP: ẨN màn hình hướng dẫn, hiện giao diện chính
-                document.getElementById('pwa-blocker').style.display = 'none';
+                // NẾU LÀ APP CHUẨN NGOÀI MÀN HÌNH CHÍNH: Cho chạy hiệu ứng Splash Screen giống video
                 document.getElementById('main-app-content').style.display = 'block';
                 checkSystemStatus();
 
@@ -534,10 +455,10 @@
                     const splash = document.getElementById('splash-screen');
                     splash.style.opacity = '0';
                     setTimeout(() => { splash.style.display = 'none'; }, 500);
-                }, 2500);
+                }, 2500); // Màn hình chờ nhún nhảy trong 2.5 giây rồi biến mất
 
             } else {
-                // NẾU CHƯA CÀI: HIỆN NGAY màn hình hướng dẫn như ảnh, kiểm tra hệ điều hành
+                // NẾU ĐANG CHẠY TRÊN TRÌNH DUYỆT THƯỜNG: Khóa Shop lại và kiểm tra hệ điều hành để hiện bảng hướng dẫn
                 document.getElementById('splash-screen').style.display = 'none';
                 document.getElementById('pwa-blocker').style.display = 'block';
 
@@ -545,12 +466,10 @@
                 const isIos = /iphone|ipad|ipod/.test(userAgent);
 
                 if (isIos) {
-                    // Hiện hướng dẫn iOS giống ảnh
+                    // Nếu là iPhone -> Hiện bảng chỉ dẫn của Safari
                     document.getElementById('guide-ios').style.display = 'block';
-                    document.getElementById('guide-android').style.display = 'none';
                 } else {
-                    // Hiện hướng dẫn Android
-                    document.getElementById('guide-ios').style.display = 'none';
+                    // Mặc định hoặc Android -> Hiện bảng chỉ dẫn của Android
                     document.getElementById('guide-android').style.display = 'block';
                 }
             }
@@ -587,7 +506,7 @@
             }, false);
         }
 
-        // ==================== CÁC LOGIC XỬ LÝ DỮ LIỆU KHÔNG ĐỔI ====================
+        // ==================== CÁC LOGIC XỬ LÝ DỮ LIỆU ĐÃ CÓ CỦA SHOP ====================
         function loginWithGoogle() {
             const provider = new GoogleAuthProvider();
             provider.setCustomParameters({ prompt: 'select_account' });
@@ -812,4 +731,12 @@
                 resultBox.innerHTML = `
                     <span style="color: var(--secondary-color); font-weight: bold;"><i class="fa-solid fa-circle-check"></i> CHÚC MỪNG BẠN ĐÃ TRÚNG ACC!</span><br>
                     <hr style="margin: 5px 0; opacity: 0.2;">
-                    <strong><i class="fa-solid fa-right-to-bracket"></i> Hình thức log:</strong> <span style="color: #0abde3; font-weight: bold; text-transform: uppercase;">${accTrung.logtype ? accTrung.logtype : '
+                    <strong><i class="fa-solid fa-right-to-bracket"></i> Hình thức log:</strong> <span style="color: #0abde3; font-weight: bold; text-transform: uppercase;">${accTrung.logtype ? accTrung.logtype : 'Chơi ngay'}</span><br>
+                    <strong><i class="fa-solid fa-user"></i> Tài khoản:</strong> <span style="color: #ffd32a; font-family: monospace;">${accTrung.username}</span><br>
+                    <strong><i class="fa-solid fa-key"></i> Mật khẩu:</strong> <span style="color: #ffd32a; font-family: monospace;">${accTrung.password}</span>
+                `;
+            }, 1500);
+        }
+    </script>
+</body>
+</html>
