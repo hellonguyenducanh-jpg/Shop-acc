@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>SHOP ACC PLAY TOGETHER - UY TÍN SỐ 1</title>
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="PTG SHOP">
+
+    <link rel="apple-touch-icon" href="https://i.postimg.cc/K8NZ1hwV/IMG-2480.jpg">
+    <link rel="icon" type="image/jpg" href="https://i.postimg.cc/K8NZ1hwV/IMG-2480.jpg">
 
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -399,7 +406,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-        import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBdjojt8mbSi_hJhbccv8r3WAXely8-u6o",
@@ -414,16 +420,6 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const database = getDatabase(app);
-        const messaging = getMessaging(app);
-
-        // KÍCH HOẠT MESSAGING
-        Notification.requestPermission().then((permission) => {
-            if (permission === 'granted') {
-                getToken(messaging, { vapidKey: 'DÁN_VAPID_KEY_CỦA_BẠN_VÀO_ĐÂY' })
-                .then((token) => { console.log("Token:", token); })
-                .catch((err) => { console.log("Lỗi:", err); });
-            }
-        });
 
         let isRegisterMode = false;
         let currentUser = null;
